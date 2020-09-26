@@ -24,13 +24,17 @@ function start() {
 function handleGrossSalaryChange(event) {
   grossSalary = +event.target.value;
   inss = calculateINSS(grossSalary);
+  irrf = calculateIRRF(grossSalary - inss);
+  netSalary = grossSalary - inss - irrf;
 
-  inputINSS.value = inss;
+  components.inputINSS.value = formatCurrency(inss);
+  components.inputIRRF.value = formatCurrency(irrf);
+  components.inputNetSalary.value = formatCurrency(netSalary);
 }
 
 function calculateINSS(base) {
   if (base > 6101.06) {
-    return 671.12;
+    return 713.1;
   }
 
   inss = 0;
@@ -71,8 +75,34 @@ function calculateINSS(base) {
     balance -= diff;
   }
 
-  console.log(inss);
-  console.log(balance);
-
   return inss;
+}
+
+function calculateIRRF(base) {
+  if (base <= 1903.98) {
+    return 0.0;
+  }
+
+  if (base <= 2826.65) {
+    return base * 0.075 - 142.8;
+  }
+
+  if (base <= 3751.05) {
+    return base * 0.15 - 354.8;
+  }
+
+  if (base <= 4664.68) {
+    return base * 0.225 - 636.13;
+  }
+
+  return base * 0.275 - 869.36;
+}
+
+function formatCurrency(value) {
+  formatterCurrency = Intl.NumberFormat('pt-BR', {
+    style: 'currency',
+    currency: 'BRL',
+  });
+
+  return formatterCurrency.format(value);
 }
